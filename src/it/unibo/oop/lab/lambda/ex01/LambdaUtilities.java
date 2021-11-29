@@ -78,9 +78,8 @@ public final class LambdaUtilities {
 		 */
 		Map<R, Set<T>> map = new HashMap<>();
 		list.forEach(t -> {
-			map.putIfAbsent(op.apply(t), new HashSet<>());
-			map.merge(op.apply(t), new HashSet<>(map.get(op.apply(t))), (r, s) -> {
-				s.add(t);
+			map.merge(op.apply(t), new HashSet<>(List.of(t)), (r, s) -> {
+				s.addAll(r);
 				return s;
 			});
 		});
@@ -102,7 +101,7 @@ public final class LambdaUtilities {
 		 * Keep in mind that a map can be iterated through its forEach method
 		 */
 		Map<K, V> nMap = new HashMap<>();
-        map.forEach((k, v) -> nMap.put(k, v.orElse(def.get())))
+        map.forEach((k, v) -> nMap.put(k, v.orElseGet(def)));
 		return nMap;
 	}
 
