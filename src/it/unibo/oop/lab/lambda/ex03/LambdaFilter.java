@@ -22,15 +22,15 @@ import javax.swing.JTextArea;
 /**
  * Modify this small program adding new filters.
  * Realize this exercise using as much as possible the Stream library.
- * 
+ *
  * 1) Convert to lowercase
- * 
+ *
  * 2) Count the number of chars
- * 
+ *
  * 3) Count the number of lines
- * 
+ *
  * 4) List all the words in alphabetical order
- * 
+ *
  * 5) Write the count for each word, e.g. "word word pippo" should output "pippo -> 1 word -> 2"
  *
  */
@@ -50,14 +50,11 @@ public final class LambdaFilter extends JFrame {
             final Map<String, Integer> list = new HashMap<>();
 
             Stream.of(s.lines().reduce("", (s1, s2) -> s1.concat(s2 + " ")).toLowerCase(Locale.ITALIAN).split(" "))
-            .forEach(w -> {
-                list.merge(w, 1, (i, o) -> i + o);
-            });
+                               .forEach(w -> list.merge(w, 1, (i, o) -> i + o));
 
-            //return list.toString();
             return list.entrySet().parallelStream()
-                           .map(e -> e.getKey() + " -> " + e.getValue())
-                           .reduce("", (s1, s2) -> s1.concat(s2 + "\n"));
+                       .map(e -> e.getKey() + " -> " + e.getValue() + "\n")
+                       .reduce("", (s1, s2) -> s1.concat(s2));
 
         });
 
@@ -87,7 +84,6 @@ public final class LambdaFilter extends JFrame {
         panel1.setLayout(layout);
         final JComboBox<Command> combo = new JComboBox<>(Command.values());
         panel1.add(combo, BorderLayout.NORTH);
-
         final JPanel centralPanel = new JPanel(new GridLayout(1, 2));
         final JTextArea left = new JTextArea();
         left.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -99,7 +95,6 @@ public final class LambdaFilter extends JFrame {
         panel1.add(centralPanel, BorderLayout.CENTER);
         final JButton apply = new JButton("Apply");
         apply.addActionListener(ev -> right.setText(((Command) combo.getSelectedItem()).translate(left.getText())));
-
         panel1.add(apply, BorderLayout.SOUTH);
         setContentPane(panel1);
         final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -117,3 +112,4 @@ public final class LambdaFilter extends JFrame {
         gui.setVisible(true);
     }
 }
+
