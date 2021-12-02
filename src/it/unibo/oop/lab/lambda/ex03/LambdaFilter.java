@@ -6,7 +6,11 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -35,7 +39,27 @@ public final class LambdaFilter extends JFrame {
     private static final long serialVersionUID = 1760990730218643730L;
 
     private enum Command {
-        IDENTITY("No modifications", Function.identity());
+        IDENTITY("No modifications", Function.identity()),
+        TO_LOWER("To lower case", String::toLowerCase),
+        COUNT_CHARS("Count characters", s -> String.valueOf(s.length())),
+        COUNT_LINES("Count lines", s -> String.valueOf(s.lines().count())),
+        ALPHABETINCA("List in alphabetical order", s -> s.lines()
+                .sorted((s1, s2) -> s1.compareToIgnoreCase(s2))
+                .reduce("", (s1, s2) -> s1.concat(s2 + "\n"))),
+        OCCURRENCES("Count for each word", s -> {
+            final Map<String, Integer> list = new HashMap<>();
+
+            Stream.of(s.lines().reduce("", (s1, s2) -> s1.concat(s2 + " ")).toLowerCase(Locale.ITALIAN).split(" "))
+            .forEach(w -> {
+                list.merge(w, 1, (i, o) -> i + o);
+            });
+
+            //return list.toString();
+            return list.entrySet().parallelStream()
+                           .map(e -> e.getKey() + " -> " + e.getValue())
+                           .reduce("", (s1, s2) -> s1.concat(s2 + "\n"));
+
+        });
 
         private final String commandName;
         private final Function<String, String> fun;
@@ -63,6 +87,7 @@ public final class LambdaFilter extends JFrame {
         panel1.setLayout(layout);
         final JComboBox<Command> combo = new JComboBox<>(Command.values());
         panel1.add(combo, BorderLayout.NORTH);
+
         final JPanel centralPanel = new JPanel(new GridLayout(1, 2));
         final JTextArea left = new JTextArea();
         left.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -74,6 +99,7 @@ public final class LambdaFilter extends JFrame {
         panel1.add(centralPanel, BorderLayout.CENTER);
         final JButton apply = new JButton("Apply");
         apply.addActionListener(ev -> right.setText(((Command) combo.getSelectedItem()).translate(left.getText())));
+
         panel1.add(apply, BorderLayout.SOUTH);
         setContentPane(panel1);
         final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
