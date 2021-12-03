@@ -52,7 +52,7 @@ public final class LambdaFilter extends JFrame {
             Stream.of(s.lines().reduce("", (s1, s2) -> s1.concat(s2 + " ")).toLowerCase(Locale.ITALIAN).split(" "))
                                .forEach(w -> list.merge(w, 1, (i, o) -> i + o));
 
-            return list.entrySet().parallelStream()
+            return list.entrySet().stream()
                        .map(e -> e.getKey() + " -> " + e.getValue() + "\n")
                        .reduce("", (s1, s2) -> s1.concat(s2));
 
